@@ -1,0 +1,433 @@
+body, html {
+    font-family: Helvetica;
+    font-size: 62.5%;
+    letter-spacing: 3px;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    height: 100%;
+    background: #264556;
+}
+
+.xn-content {
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+}
+
+.xn-content .xn-container {
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;    
+    overflow: hidden;
+}
+
+.xn-content .xn-container *  {
+    box-sizing: border-box;
+}
+
+.xn-content .xn-container.desktop {
+    display: flex;
+}
+
+.xn-loader {
+    display: inline-block;
+    position: relative;
+    background-size: contain;
+    height: 100px;
+    width: 100px;
+    background-repeat: no-repeat;
+}
+
+.xn-loaders-container {
+    text-align: center;
+}
+
+.xn-loader.xn-loader-idle {
+    background-image: url(./images/dots_idle.gif);
+}
+
+.xn-loader.xn-loader-reveal {
+    background-image: url(./images/dots_reveal.gif);
+}
+
+.xn-loader.xn-loader-error {
+    background-image: url(./images/dots_error.gif);
+}
+
+.xn-loader.xn-loader-speak {
+    background-image: url(./images/dots_speak.gif);
+}
+
+.xn-loader.xn-loader-think-idle {
+    background-image: url(./images/dots_think_idle.gif);
+}
+
+.xn-loader.xn-loader-think {
+    background-image: url(./images/dots_think.gif);
+}
+
+.xn-question-text {
+    font-family: 'Alegreya', serif;
+    position: relative;
+    transition: all .3s ease;
+    width: 100%;
+    text-align: center;
+    line-height: 22px;
+    font-size: 24px;
+    bottom: 0;
+    top: 0;
+    letter-spacing: 2px;
+    padding: 0 5px;
+    height: 75px;
+    margin-bottom: 10px;
+}
+
+.xn-input-container input, .xn-question-text {
+    font-weight: 400;
+}
+
+.xn-input-container input, .xn-question-text {
+    text-transform: uppercase;
+}
+
+.xn-action-button {
+    cursor: pointer;
+    border-radius: 2px;
+    margin-right: 6px;
+    margin-left: 6px;
+    color: #fff;
+    background-color: #4caf50;
+    border: none;
+    font-size: 18px;
+    text-transform: uppercase;
+    position: fixed;
+    padding: 20px 20px;
+    bottom: -70px;
+    left: calc(50% - 80px);
+    animation-name: button-slide-up;
+    animation-duration: 2s;
+    animation-delay: 4.5s;
+    animation-fill-mode: forwards;
+    animation-timing-function: cubic-bezier(.5,-2.5,1,1);
+}
+
+/*****************/ 
+/***** INTRO *****/ 
+/*****************/ 
+
+.xn-intro-loaders-wrapper {
+    position: absolute;
+    top: 40%;
+    text-align: center;
+    width: 100%;
+    animation-name: intro-slide-up;
+    animation-duration: .8s;
+    animation-delay: 3s;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in-out;
+}
+
+.xn-intro-copy-wrapper {
+    position: absolute;
+    width: 100%;
+    display: inline-block;
+    top: 25%;
+}
+
+.xn-intro-logo-wrapper {
+    opacity: 0;
+    animation-name: intro-fade-in;
+    animation-duration: 1s;
+    animation-delay: 1s;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in-out
+}
+
+.xn-intro-logo {
+    width: 50%;
+    height: 25%;
+    bottom: 50px;
+    left: 25%;
+    position: absolute;
+    background: url(./images/background2.png) 50% 0 no-repeat;
+    background-size: contain!important;
+    animation-name: img-slide-up;
+    animation-duration: .8s;
+    animation-delay: 3s;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in-out
+}
+
+.xn-intro-text {
+    top: 26%;
+    line-height: 42px;
+    font-size: 30px;
+    margin-bottom: 70px;
+    margin-top: 11px;
+}
+
+.xn-intro-text, .xn-intro-subtext {
+    padding: 0 10%;
+    position: relative;
+    display: inline-block;
+}
+
+.xn-intro-hr {
+    width: 10%;
+    left: 45%;
+    position: relative;
+    top: 50%;
+    opacity: 0;
+    display: inline-block;
+    margin-bottom: 5%;
+    animation-name: intro-fade-in;
+    animation-duration: 2s;
+    animation-delay: 4.5s;
+    animation-fill-mode: forwards;
+    animation-timing-function: cubic-bezier(.5,-2.5,1,1);
+}
+
+.xn-intro-subtext {    
+    font-family: 'Alegreya', serif;
+    top: 55%;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    color: #999;
+    line-height: 18px;
+    opacity: 0;
+    animation-name: intro-fade-in;
+    animation-duration: 2s;
+    animation-delay: 4.5s;
+    animation-fill-mode: forwards;
+    animation-timing-function: cubic-bezier(.5,-2.5,1,1)
+}
+
+/*****************/ 
+/***** CHAT ******/ 
+/*****************/ 
+
+.xn-chat-view {
+    margin: 0 auto 10%;
+    width: 100%;
+    height: 100%;
+}
+
+.xn-chat-wrapper {
+    height: 100%;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+.xn-chat-container {
+    /* height: calc(100% - 290px);*/
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.xn-question-text.xn-chat-text {
+    height: auto!important;
+}
+
+.xn-chat-view .xn-loaders {
+    height: 50px;
+    width: 50px;
+    margin-top: -24px;
+}
+
+.xn-chat-input {
+    font-family: 'Alegreya', serif;
+    border: 0;
+    border-image-slice: 100%;
+    background-color: transparent;
+    letter-spacing: 2px;
+    color: #fff;
+    width: 100%;
+    width: 90%;
+    margin-left: 5%;
+    text-align: center;
+    font-size: 23px;
+    margin-top: -4px;
+    overflow: auto;
+    border-bottom: 1px solid #fff!important;
+    outline: none;
+}
+
+.xn-chat-elements-container {
+    width: 90%;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+
+.xn-chat-button {
+    position: relative;
+    cursor: pointer;
+    border-radius: 2px;
+    margin: 6px;
+    color: #fff;
+    background-color: #4caf50;
+    border: none;
+    font-size: 18px;
+    text-transform: uppercase;
+    padding: 20px 20px;
+}
+
+.xn-chat-input-footer {
+    width: 90%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 0 auto;
+}
+
+.xn-chat-logo {
+    background: url(./images/background2.png) 50% 0 no-repeat;
+    background-size: contain!important;
+    width: 200px;
+    height: 100px;
+}
+
+.xn-chat-submit-button {
+    margin-top: 10px;
+    background-color: #e0e0e0;
+    color: #505050;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 2px;
+    border: none;
+    font-size: 18px;
+    text-transform: uppercase;
+    height: 40px;
+}
+
+.xn-chat-signup-button {
+    margin-top: 10px;
+    background-color: #4caf50;
+    color: #f8f8f8;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 2px;
+    border: none;
+    font-size: 18px;
+    text-transform: uppercase;
+    height: 40px;
+    text-decoration: none;
+}
+
+@keyframes talking {
+    from {
+        background-color: red
+    }
+
+    to {
+        background-color: #ff0
+    }
+}
+
+@keyframes thinking {
+    from {
+        background-color: #00f
+    }
+
+    to {
+        background-color: orange
+    }
+}
+
+@keyframes intro-slide-up {
+    from {
+        top: 40%;
+    }
+
+    to {
+        top: 70px;
+    }
+}
+
+@keyframes button-slide-up {
+    from {
+        bottom: -70px
+    }
+
+    to {
+        bottom: 40px
+    }
+}
+
+@keyframes img-slide-up {
+    from {
+        bottom: 50px;
+        opacity: 1
+    }
+
+    to {
+        bottom: 90px;
+        opacity: 0
+    }
+}
+
+@keyframes intro-fade-in {
+    from {
+        opacity: .01
+    }
+
+    to {
+        opacity: 1
+    }
+}
+
+@media (min-width: 490px) {
+    .xn-loader {
+        height: 200px;
+        width: 200px;
+    }
+
+    .xn-chat-view  .xn-loader {
+        height: 150px;
+        width: 150px;
+    }
+    
+    .xn-question-text {
+        font-size: 30px;
+        line-height: 30px;
+        padding: 0 5%;
+        margin-bottom: 0;
+    }
+
+    .xn-intro-text {
+        top: 33%;
+        line-height: 54px;
+        padding: 0 30%;
+        font-size: 42px;
+        margin-bottom: 5%;
+        margin-top: 5%;
+    }
+
+    .xn-intro-hr {
+        top: 55%;
+        margin-bottom: 2%;
+    }
+
+    .xn-intro-subtext {
+        font-size: 24px;
+        padding: 0 21%;
+        line-height: 34px;
+        top: 60%
+    }
+
+    .xn-chat-view {
+        width: 50%;
+    }
+
+    .xn-chat-view .xn-loaders-container {
+        height: 180px;
+    }
+}
