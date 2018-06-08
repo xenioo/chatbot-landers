@@ -1,0 +1,100 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Support Service Chabot | by Xenioo</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700%7COpen+Sans:400,600,700" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="row">
+                <div class="col-10 col-sm-4">
+                    <a class="logo">
+                        <img src="images/log_1920_white.png">
+                    </a>
+                </div>
+                <div class="col-2 col-sm-8">
+                    <nav class="header-nav-wrap">
+                        <ul class="header-nav">
+                            <li>
+                                <a href="#">Home</a>
+                            </li>
+                            <li>
+                                <a href="#">Knowledge</a>
+                            </li>
+                            <li>
+                                <a href="#">FAQ</a>
+                            </li>
+                            <li>
+                                <a href="#">Contact</a>
+                            </li>
+                        </ul>
+                    </nav>
+                    <button type="button" class="header-btn">
+                        <i class="zmdi zmdi-menu"></i>
+                        <i class="zmdi zmdi-close"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container home">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 home-title">
+                <div class="home-text-wrap">
+                    <h1>Hi. How can we help?</h1>
+                    <p>Find articles, help, and advice for getting the most out of Xenioo's Printer Support.</p>
+                    <div class="home-search">
+                        <form>
+                            <input id="searchterm" type="text" placeholder="Enter a search term here">
+                            <button onclick="search();return false;"><i class="zmdi zmdi-search"></i></button>
+                        </form>
+                        <span>or write in</span>
+                        <a href="#" class="default-button chat-button" onclick="toggleChat()">Live Chat</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://app.xenioo.com/webchatsrc/xeniooweb.js"></script>
+    <script>
+        var botid = '6645776f-a3f4-412d-9960-2f939df11def';
+
+        start();
+
+        function start() {
+            Xenioo(botid, {
+                onChatShow: function() {
+                    hideChatWidget();
+                },
+                onChatHide: function () {
+                    showChatWidget();
+                },
+                avatarinline:true
+            });
+        }
+
+        function search() {
+            var src= document.getElementById('searchterm').value;
+            if( src.length == 0 )
+                return;
+                
+            document.getElementById('searchterm').value = "";
+        
+            Say(src);
+            if (!isChatOpened())
+                toggleChat();
+        }
+    </script>
+</body>
+
+</html>
