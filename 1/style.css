@@ -257,14 +257,23 @@ body, html {
 }
 
 .xn-chat-elements-container {
-    width: 90%;
+    /*width: 90%;*/
+    width: 100%;
     margin: 0 auto;
     padding: 0;
     display: flex;
-    flex-direction: row;
+    flex-direction: column; /* row;*/
     justify-content: center;
     flex-wrap: wrap;
     margin-bottom: 40px;
+}
+
+.xn-chat-buttons-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .xn-chat-button {
@@ -278,6 +287,16 @@ body, html {
     font-size: 18px;
     text-transform: uppercase;
     padding: 20px 20px;
+}
+
+.xn-video {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.xn-video video.x-video-control {
+    height: 250px;
 }
 
 .xn-chat-input-footer {
@@ -384,6 +403,14 @@ body, html {
     }
 }
 
+#xn-logo-link1 {
+  display: block;
+}
+    
+#xn-logo-link2 {
+  display: none;
+}
+
 @media (min-width: 490px) {
     .xn-loader {
         height: 200px;
@@ -430,4 +457,21 @@ body, html {
     .xn-chat-view .xn-loaders-container {
         height: 180px;
     }
+ }
+ 
+ @media (min-width: 320px) and (max-width: 480px) {   
+    .xn-chat-input-footer {
+      align-items: center;
+     flex-direction: column;
+    }
+    
+    #xn-logo-link1 {
+      display: none;
+    }
+    
+    #xn-logo-link2 {
+      display: block;
+      margin-top: 4px;
+    }
+    
 }

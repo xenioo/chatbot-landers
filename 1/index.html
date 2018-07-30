@@ -55,11 +55,13 @@
         </div>
     </div>
     <script src="https://app.xenioo.com/webchatsrc/xeniooweb.js"></script>
-    <script>
+	<script>
         var loader = 'reveal';
         var queue = [];
         var botid = 'df16e5cd-7766-42ea-b071-286ca8844c84';
-
+        var currentRenderedPart = null;
+        var previousRenderedPart = null;
+                
         function putInQueue(fn) {
             queue.push(fn);
         }
@@ -72,9 +74,11 @@
             
             setChatLoader('think');
 
+            previousRenderedPart = currentRenderedPart;  
+
             var fn = queue.shift();
 
-            fn();
+            fn();            
         }
 
         var typeitInstanceIntro = new TypeIt('#xn-intro-text', {
@@ -151,6 +155,7 @@
                 return;
 
             typeitInstanceChat = createTypeitChatInstance();
+
             $('.xn-chat-elements-container').empty();
                  
             for (var i = 0; i < parts.length; i++) {
@@ -163,6 +168,10 @@
         }
 
         function renderBotReply(part, index) {
+            console.log(part);
+
+            currentRenderedPart = part;
+
             var text = part.Text;
 
             switch (part.Type) {
@@ -181,20 +190,25 @@
                     break;
 
                 case 1: // Button
-                    RenderButton(part);
+                    RenderButton(part);                                
                     doNextQueue();
                     break;
 
                 case 3: // Image
+                    doNextQueue();
                     break;
 
                 case 9: // Video 
+                    RenderVideo(part);
+                    doNextQueue();
                     break;
 
                 case 10: // Audio
+                    doNextQueue();
                     break;
 
                 case 11: // File
+                    doNextQueue();
                     break;
 
                 case 13:  // Button Card
@@ -207,7 +221,8 @@
 
                     putInQueue(function () {
                         for (var i = 0; i < part.Parts.length; i++) {
-                            RenderButton(part.Parts[i]);
+                            RenderButton(part.Parts[i]);                            
+                            previousRenderedPart = part.Parts[i];  
                         }
                         doNextQueue();
                     });
@@ -215,18 +230,23 @@
                     break;
 
                 case 5:   // Carousel Card
+                    doNextQueue();
                     break;
 
                 case 12:  // List Card
+                    doNextQueue();
                     break;
 
                 case 17: // Url
+                    doNextQueue();
                     break;
 
                 case 19: // User text
+                    doNextQueue();
                     break;
 
                 case 25: // Attesa
+                    doNextQueue();
                     break;
 
                 default:
@@ -236,6 +256,12 @@
         }
 
         function RenderButton(part) {
+            if (previousRenderedPart.Type != 1) {
+                buttonsContainer = document.createElement('div');
+                buttonsContainer.setAttribute('class', 'xn-chat-buttons-container');
+                $('.xn-chat-elements-container')[0].appendChild(buttonsContainer);
+            }
+
             var button = document.createElement('div');
 
             switch (part.SubType) {
@@ -251,8 +277,16 @@
                     button.innerHTML = '<button class="xn-chat-button" onclick="setChatLoader(\'think\'); Command(\'' + DropSinglePoint(part.Text) + '\', \'' + DropSinglePoint(part.Command) + '\')"><span>' + part.Text + '</span></button>';
                     break;
             }
-        
-            $('.xn-chat-elements-container')[0].appendChild(button.firstChild);
+
+            buttonsContainer.appendChild(button.firstChild);
+        }
+
+        function RenderVideo(part) {
+            var video = document.createElement('div');
+
+            video.innerHTML = '<div class="xn-video"><video class="x-video-control" controls><source src="' + part.Text + '"></video></div>';
+                 
+            $('.xn-chat-elements-container')[0].appendChild(video.firstChild);
         }
 
         function DropSinglePoint(text) {
@@ -262,8 +296,7 @@
             text = text.replace(/'/g, "\\'");
             return text;
         }
-
-    </script>
+    </script>	
 </body>
 
 </html>
