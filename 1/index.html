@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css?family=Alegreya" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/typeit@5.10.1/dist/typeit.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/typeit"></script>
 </head>
 <body>
     <div class="xn-content">
@@ -62,6 +62,39 @@
         var currentRenderedPart = null;
         var previousRenderedPart = null;
                 
+        $(document).ready(function () {
+            setTimeout(function () {
+                speakIntro('Hi! How can I help you today?');
+            }, 5800);
+        });
+        
+        var createTypeitIntroInstance = function() { return new TypeIt('#xn-intro-text', {
+                speed: 45,
+                cursor: false,
+                breakLines: false,
+                startDelete: true,
+                afterString: function(instance) {
+                    setIntroLoader('idle');
+                }
+            });
+        };
+        
+        var createTypeitChatInstance = function() { return new TypeIt('#xn-chat-reply', {
+                speed: 45,
+                cursor: false,
+                startDelete: false,
+                beforeString: function(step, queue, instance) {
+                    setChatLoader('speak');
+                },
+                afterString: function(step, queue, instance) {
+                    doNextQueue();
+                }
+            });
+        };
+
+        var typeitInstanceIntro = createTypeitIntroInstance();
+        var typeitInstanceChat = createTypeitChatInstance();
+
         function putInQueue(fn) {
             queue.push(fn);
         }
@@ -80,39 +113,6 @@
 
             fn();            
         }
-
-        var typeitInstanceIntro = new TypeIt('#xn-intro-text', {
-            speed: 25,
-            autoStart: false,
-            cursor: false,
-            breakLines: false,
-            startDelete: true,
-            afterString: function(instance) {
-                setIntroLoader('idle');
-            }
-        });
-        
-        var createTypeitChatInstance = function() { return new TypeIt('#xn-chat-reply', {
-                speed: 25,
-                autoStart: false,
-                cursor: false,
-                startDelete: false,
-                beforeString: function(step, queue, instance) {
-                    setChatLoader('speak');
-                },
-                afterString: function(step, queue, instance) {
-                    doNextQueue();
-                }
-            });
-        };
-
-        var typeitInstanceChat = createTypeitChatInstance();
-
-        $(document).ready(function () {
-            setTimeout(function () {
-                speakIntro('Hi! How can I help you today?');
-            }, 5800);
-        });
 
         function start() {
             $('.xn-intro-view').css('display', 'none');
@@ -176,7 +176,6 @@
 
             switch (part.Type) {
                 case 0: // Text
-                case 6: // Domanda
                     if (isNullOrEmpty(text)) {
                         break;
                     }
@@ -188,6 +187,10 @@
                         .pause(1500);
 
                     break;
+                
+                case 6: // Domanda
+                    doNextQueue();
+                    break;
 
                 case 1: // Button
                     RenderButton(part);                                
@@ -195,6 +198,7 @@
                     break;
 
                 case 3: // Image
+                    RenderImage(part);
                     doNextQueue();
                     break;
 
@@ -212,25 +216,11 @@
                     break;
 
                 case 13:  // Button Card
-
-                    typeitInstanceChat
-                        .empty()
-                        .type(part.Text)
-                        .break()
-                        .pause(1500);
-
-                    putInQueue(function () {
-                        for (var i = 0; i < part.Parts.length; i++) {
-                            RenderButton(part.Parts[i]);                            
-                            previousRenderedPart = part.Parts[i];  
-                        }
-                        doNextQueue();
-                    });
-
+                    RenderButtonCard(part);
                     break;
 
                 case 5:   // Carousel Card
-                    doNextQueue();
+                    RenderCarousel(part);
                     break;
 
                 case 12:  // List Card
@@ -284,9 +274,65 @@
         function RenderVideo(part) {
             var video = document.createElement('div');
 
-            video.innerHTML = '<div class="xn-video"><video class="x-video-control" controls><source src="' + part.Text + '"></video></div>';
+            video.innerHTML = '<div class="xn-video"><video class="xn-video-control" controls><source src="' + part.Text + '"></video></div>';
                  
             $('.xn-chat-elements-container')[0].appendChild(video.firstChild);
+        }
+
+        function RenderImage(part) {
+            var image = document.createElement('div');
+
+            var content = "<img class='x-image-element' src='" + part.Text + "'>";
+
+            if (part.Command)
+                content = "<a href='" + part.Command + "' target='_blank'>" + content + "</a>";
+            
+            image.innerHTML = '<div class="xn-image">' + content + '</div>';
+                 
+            $('.xn-chat-elements-container')[0].appendChild(image.firstChild);
+        }
+
+        function RenderButtonCard(part) {
+            typeitInstanceChat
+                .empty()
+                .type(part.Text)
+                .break()
+                .pause(1500);
+
+            putInQueue(function () {
+                for (var i = 0; i < part.Parts.length; i++) {
+                    RenderButton(part.Parts[i]);                            
+                    previousRenderedPart = part.Parts[i];  
+                }
+                doNextQueue();
+            });
+        }
+
+        function RenderCarousel(part) {
+            //Write("<div class='x-message-bubble'>" + getAvatarInline(index) + "<div class='x-message-bubble-content'>" + RenderCarousel(part) + "</div></div></div>");
+
+
+        }
+
+        function RenderCarouselInternal(part) {
+            var html = "<div class='x-carousel-container-whole'><div class='x-card-carousel-container fix-sizing' id='carousel_" + itemid + "'>";
+
+            for (var i = 0; i < part.Parts.length; i++)
+                html += RenderCard(part.Parts[i], true);
+
+            html += "</div>";
+
+            if (part.Parts.length > 1)
+                html += "<div onclick='scrollDiv(-4, " + itemid + ")' class='x-card-carousel-container-left-arrow'></div>";
+
+            if (part.Parts.length > 1)
+                html += "<div onclick='scrollDiv(4, " + itemid + ")' class='x-card-carousel-container-right-arrow'></div>";
+
+            html += "</div>";
+
+            itemid++;
+
+            return html;
         }
 
         function DropSinglePoint(text) {
@@ -296,6 +342,7 @@
             text = text.replace(/'/g, "\\'");
             return text;
         }
+
     </script>	
 </body>
 

@@ -257,8 +257,7 @@ body, html {
 }
 
 .xn-chat-elements-container {
-    /*width: 90%;*/
-    width: 100%;
+    width: 90%;
     margin: 0 auto;
     padding: 0;
     display: flex;
@@ -295,7 +294,17 @@ body, html {
     align-items: center;
 }
 
-.xn-video video.x-video-control {
+.xn-video video.xn-video-control {
+    height: 250px;
+}
+
+.xn-image {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.xn-image img.x-image-element {
     height: 250px;
 }
 
@@ -417,7 +426,7 @@ body, html {
         width: 200px;
     }
 
-    .xn-chat-view  .xn-loader {
+    .xn-chat-view .xn-loader {
         height: 150px;
         width: 150px;
     }
@@ -460,9 +469,31 @@ body, html {
  }
  
  @media (min-width: 320px) and (max-width: 480px) {   
+    .xn-video video.xn-video-control {
+        width: 100%;
+        height: auto;
+    }
+    
+    .xn-image img.x-image-element {
+        width: 100%;
+        height: auto;
+    }
+
+    .xn-chat-button {
+        width: 100%;
+        margin: 0;
+        margin-top: 6px;
+    }
+
+    .xn-chat-input-wrapper {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+    }
+
     .xn-chat-input-footer {
-      align-items: center;
-     flex-direction: column;
+        align-items: center;
+        flex-direction: column;
     }
     
     #xn-logo-link1 {
