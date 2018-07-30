@@ -11,8 +11,8 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/typeit"></script>
 </head>
 <body>
-    <div class="xn-content">
-        <div class="xn-container desktop">
+	<div class="xn-content">
+        <div class="xn-container">
             <div style="display: none;" class="xn-chat-view">
                 <div class="xn-chat-wrapper">
                     <div class="xn-loaders-container">
@@ -27,11 +27,12 @@
                             <input id="user_text" class="xn-chat-input" type="text" onkeyup="if (event.keyCode == 13) { Say(); }" />
                         </div>                   
                         <div class="xn-chat-input-footer">
-                            <a href="https://www.xenioo.com"><div class="xn-chat-logo"></div></a>
-                            <div>
-                                <a class="xn-chat-signup-button" href="https://app.xenioo.com/auth/signup">SIGN UP HERE!</a>
+                            <a id="xn-logo-link1" href="https://www.xenioo.com"><div class="xn-chat-logo"></div></a>
+                            <div class="xn-chat-footer-buttons">
+                                <a class="xn-chat-signup-button" href="https://app.xenioo.com/auth/signup">SIGN UP!</a>
                                 <button id="send_button" class="xn-chat-submit-button" onclick="Say();"><span>SUBMIT</span></button>
-                            </div> 
+                            </div>    
+                            <a id="xn-logo-link2" href="https://www.xenioo.com"><div class="xn-chat-logo"></div></a>                        
                         </div>         
                     </div>
                 </div>
@@ -345,5 +346,4 @@
 
     </script>	
 </body>
-
 </html>

@@ -222,7 +222,7 @@ body, html {
 }
 
 .xn-chat-container {
-    /* height: calc(100% - 290px);*/
+    height: calc(100% - 290px);
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -254,6 +254,7 @@ body, html {
     overflow: auto;
     border-bottom: 1px solid #fff!important;
     outline: none;
+    border-radius: 0!important;
 }
 
 .xn-chat-elements-container {
@@ -321,6 +322,13 @@ body, html {
     background-size: contain!important;
     width: 200px;
     height: 100px;
+}
+
+.xn-chat-footer-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .xn-chat-submit-button {
