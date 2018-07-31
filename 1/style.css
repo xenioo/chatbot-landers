@@ -20,7 +20,8 @@ body, html {
     width: 100%;
     height: 100%;
     margin: 0 auto;    
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .xn-content .xn-container *  {
@@ -210,7 +211,7 @@ body, html {
 /*****************/ 
 
 .xn-chat-view {
-    margin: 0 auto 10%;
+    margin: 0 auto; /* 10%; */
     width: 100%;
     height: 100%;
 }
@@ -222,7 +223,6 @@ body, html {
 }
 
 .xn-chat-container {
-    height: calc(100% - 290px);
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -296,7 +296,7 @@ body, html {
 }
 
 .xn-video video.xn-video-control {
-    height: 250px;
+    height: 350px;
 }
 
 .xn-image {
@@ -306,7 +306,7 @@ body, html {
 }
 
 .xn-image img.x-image-element {
-    height: 250px;
+    height: 350px;
 }
 
 .xn-chat-input-footer {
@@ -321,7 +321,7 @@ body, html {
     background: url(./images/background2.png) 50% 0 no-repeat;
     background-size: contain!important;
     width: 200px;
-    height: 100px;
+    height: 60px;
 }
 
 .xn-chat-footer-buttons {
@@ -476,7 +476,16 @@ body, html {
     }
  }
  
- @media (min-width: 320px) and (max-width: 480px) {   
+ @media (min-width: 320px) and (max-width: 480px) {  
+     
+    .xn-content .xn-container {
+        overflow-y: hidden;
+    }
+    
+    .xn-chat-container {
+        height: calc(100% - 290px);
+    }
+
     .xn-video video.xn-video-control {
         width: 100%;
         height: auto;

@@ -57,293 +57,314 @@
     </div>
     <script src="https://app.xenioo.com/webchatsrc/xeniooweb.js"></script>
 	<script>
-        var loader = 'reveal';
-        var queue = [];
-        var botid = 'df16e5cd-7766-42ea-b071-286ca8844c84';
-        var currentRenderedPart = null;
-        var previousRenderedPart = null;
-                
-        $(document).ready(function () {
-            setTimeout(function () {
-                speakIntro('Hi! How can I help you today?');
-            }, 5800);
-        });
+        var xenioolandingchat = (function () {
         
-        var createTypeitIntroInstance = function() { return new TypeIt('#xn-intro-text', {
-                speed: 45,
-                cursor: false,
-                breakLines: false,
-                startDelete: true,
-                afterString: function(instance) {
-                    setIntroLoader('idle');
-                }
-            });
-        };
-        
-        var createTypeitChatInstance = function() { return new TypeIt('#xn-chat-reply', {
-                speed: 45,
-                cursor: false,
-                startDelete: false,
-                beforeString: function(step, queue, instance) {
-                    setChatLoader('speak');
-                },
-                afterString: function(step, queue, instance) {
-                    doNextQueue();
-                }
-            });
-        };
+            var botid = 'df16e5cd-7766-42ea-b071-286ca8844c84';
+            var loader = 'reveal';
+            var queue = [];            
+            var currentRenderedPart = null;
+            var previousRenderedPart = null;
+            var delayAfterEachTypedText = 1500; //millisec
+            var typingSpeed = 60;
+            var textLenghtThresholdForNoTyping = 100;
 
-        var typeitInstanceIntro = createTypeitIntroInstance();
-        var typeitInstanceChat = createTypeitChatInstance();
-
-        function putInQueue(fn) {
-            queue.push(fn);
-        }
-
-        function doNextQueue() {
-            if (queue.length == 0) {
-                setChatLoader('idle');
-                return;
-            }
-            
-            setChatLoader('think');
-
-            previousRenderedPart = currentRenderedPart;  
-
-            var fn = queue.shift();
-
-            fn();            
-        }
-
-        function start() {
-            $('.xn-intro-view').css('display', 'none');
-            $('.xn-chat-view').css('display', 'block');
-
-            loader = '';
-            setChatLoader('think');
-
-            Xenioo(botid, {
-                replyFn: reply,
-                createbutton:false,
-                createarea: false,
-                chattextid: "user_text",
-                sendbuttonid: "send_button"
-            });      
-        }
-
-        function speakIntro(what) {
-            setIntroLoader('speak');
-
-            typeitInstanceIntro.empty().type(what);
-        }
-
-        function setIntroLoader(what) {
-            $('.xn-intro-view #xn-loader').removeClass('xn-loader-' + loader);
-            $('.xn-intro-view #xn-loader').addClass('xn-loader-' + what);
-            loader = what;
-        }
-
-        function setChatLoader(what) {
-            if (loader)
-                $('.xn-chat-view #xn-loader').removeClass('xn-loader-' + loader);
-            $('.xn-chat-view #xn-loader').addClass('xn-loader-' + what);
-            loader = what;
-        }
-
-        function reply(reply, start) {
-            var parts = reply.Parts;
-            if (parts.length == 0)
-                return;
-
-            typeitInstanceChat = createTypeitChatInstance();
-
-            $('.xn-chat-elements-container').empty();
-                 
-            for (var i = 0; i < parts.length; i++) {
-                var part = parts[i];
-                var index = i;
-                putInQueue(renderBotReply.bind(this, part, index));
-            }
-
-            doNextQueue();
-        }
-
-        function renderBotReply(part, index) {
-            console.log(part);
-
-            currentRenderedPart = part;
-
-            var text = part.Text;
-
-            switch (part.Type) {
-                case 0: // Text
-                    if (isNullOrEmpty(text)) {
-                        break;
+            var createTypeitIntroInstance = function() { return new TypeIt('#xn-intro-text', {
+                    speed: typingSpeed,
+                    cursor: false,
+                    breakLines: false,
+                    startDelete: true,
+                    afterString: function(instance) {
+                        setIntroLoader('idle');
                     }
-
-                    typeitInstanceChat
-                        .empty()
-                        .type(part.Text)
-                        .break()
-                        .pause(1500);
-
-                    break;
-                
-                case 6: // Domanda
-                    doNextQueue();
-                    break;
-
-                case 1: // Button
-                    RenderButton(part);                                
-                    doNextQueue();
-                    break;
-
-                case 3: // Image
-                    RenderImage(part);
-                    doNextQueue();
-                    break;
-
-                case 9: // Video 
-                    RenderVideo(part);
-                    doNextQueue();
-                    break;
-
-                case 10: // Audio
-                    doNextQueue();
-                    break;
-
-                case 11: // File
-                    doNextQueue();
-                    break;
-
-                case 13:  // Button Card
-                    RenderButtonCard(part);
-                    break;
-
-                case 5:   // Carousel Card
-                    RenderCarousel(part);
-                    break;
-
-                case 12:  // List Card
-                    doNextQueue();
-                    break;
-
-                case 17: // Url
-                    doNextQueue();
-                    break;
-
-                case 19: // User text
-                    doNextQueue();
-                    break;
-
-                case 25: // Attesa
-                    doNextQueue();
-                    break;
-
-                default:
-                    console.log("Unknow tag type:" + part.Type);
-                    break;
-            }
-        }
-
-        function RenderButton(part) {
-            if (previousRenderedPart.Type != 1) {
-                buttonsContainer = document.createElement('div');
-                buttonsContainer.setAttribute('class', 'xn-chat-buttons-container');
-                $('.xn-chat-elements-container')[0].appendChild(buttonsContainer);
-            }
-
-            var button = document.createElement('div');
-
-            switch (part.SubType) {
-                case "element_share":
-                    break;
-                case "phone_number":
-                    button.innerHTML = '<button class="xn-chat-button" onclick="window.open(\'tel:" + part.Command + "\', \'_blank\')\"><span>' + part.Text + '</span></button>';
-                    break;
-                case "web_url":
-                    button.innerHTML = '<button class="xn-chat-button" onclick="window.open(\'' + part.Command + '\', \'_blank\')\"><span>' + part.Text + '</span></button>';
-                    break;
-                default:
-                    button.innerHTML = '<button class="xn-chat-button" onclick="setChatLoader(\'think\'); Command(\'' + DropSinglePoint(part.Text) + '\', \'' + DropSinglePoint(part.Command) + '\')"><span>' + part.Text + '</span></button>';
-                    break;
-            }
-
-            buttonsContainer.appendChild(button.firstChild);
-        }
-
-        function RenderVideo(part) {
-            var video = document.createElement('div');
-
-            video.innerHTML = '<div class="xn-video"><video class="xn-video-control" controls><source src="' + part.Text + '"></video></div>';
-                 
-            $('.xn-chat-elements-container')[0].appendChild(video.firstChild);
-        }
-
-        function RenderImage(part) {
-            var image = document.createElement('div');
-
-            var content = "<img class='x-image-element' src='" + part.Text + "'>";
-
-            if (part.Command)
-                content = "<a href='" + part.Command + "' target='_blank'>" + content + "</a>";
+                });
+            };
             
-            image.innerHTML = '<div class="xn-image">' + content + '</div>';
-                 
-            $('.xn-chat-elements-container')[0].appendChild(image.firstChild);
-        }
+            var createTypeitChatInstance = function() { return new TypeIt('#xn-chat-reply', {
+                    speed: typingSpeed,
+                    cursor: false,
+                    breakLines: false,
+                    startDelete: false,
+                    beforeString: function(step, queue, instance) {
+                        setChatLoader('speak');
+                    },
+                    afterComplete: function(instance) {                        
+                        doNextQueue();
+                    }
+                });
+            };
 
-        function RenderButtonCard(part) {
-            typeitInstanceChat
-                .empty()
-                .type(part.Text)
-                .break()
-                .pause(1500);
+            function putInQueue(fn) {
+                queue.push(fn);
+            }
 
-            putInQueue(function () {
-                for (var i = 0; i < part.Parts.length; i++) {
-                    RenderButton(part.Parts[i]);                            
-                    previousRenderedPart = part.Parts[i];  
+            function doNextQueue() {
+                if (queue.length == 0) {
+                    setChatLoader('idle');
+                    return;
                 }
+                
+                setChatLoader('think');
+
+                previousRenderedPart = currentRenderedPart;  
+
+                var fn = queue.shift();
+
+                fn();            
+            }
+
+            function start() {
+                $('.xn-intro-view').css('display', 'none');
+                $('.xn-chat-view').css('display', 'block');
+
+                loader = '';
+                setChatLoader('think');
+
+                Xenioo(botid, {
+                    replyFn: reply,
+                    createbutton:false,
+                    createarea: false,
+                    chattextid: "user_text",
+                    sendbuttonid: "send_button"
+                });      
+            }
+
+            function speakIntro(what) {
+                setIntroLoader('speak');
+
+                createTypeitIntroInstance().empty().type(what);
+            }
+
+            function setIntroLoader(what) {
+                $('.xn-intro-view #xn-loader').removeClass('xn-loader-' + loader);
+                $('.xn-intro-view #xn-loader').addClass('xn-loader-' + what);
+                loader = what;
+            }
+
+            function setChatLoader(what) {
+                if (loader)
+                    $('.xn-chat-view #xn-loader').removeClass('xn-loader-' + loader);
+                $('.xn-chat-view #xn-loader').addClass('xn-loader-' + what);
+                loader = what;
+            }
+
+            function reply(reply, start) {
+                var parts = reply.Parts;
+                if (parts.length == 0)
+                    return;
+
+                typeitInstanceChat = createTypeitChatInstance();
+
+                $('.xn-chat-elements-container').empty();
+                    
+                for (var i = 0; i < parts.length; i++) {
+                    var part = parts[i];
+                    var index = i;
+                    putInQueue(renderBotReply.bind(this, part, index));
+                }
+
                 doNextQueue();
-            });
-        }
+            }
 
-        function RenderCarousel(part) {
-            //Write("<div class='x-message-bubble'>" + getAvatarInline(index) + "<div class='x-message-bubble-content'>" + RenderCarousel(part) + "</div></div></div>");
+            function renderBotReply(part, index) {
+                currentRenderedPart = part;
+
+                switch (part.Type) {
+                    case 0: // Text
+                        RenderText(part);
+                        break;
+                    
+                    case 6: // Domanda
+                        doNextQueue();
+                        break;
+
+                    case 1: // Button
+                        RenderButton(part);                                
+                        doNextQueue();
+                        break;
+
+                    case 3: // Image
+                        RenderImage(part);
+                        doNextQueue();
+                        break;
+
+                    case 9: // Video 
+                        RenderVideo(part);
+                        doNextQueue();
+                        break;
+
+                    case 10: // Audio
+                        doNextQueue();
+                        break;
+
+                    case 11: // File
+                        doNextQueue();
+                        break;
+
+                    case 13:  // Button Card
+                        RenderButtonCard(part);
+                        break;
+
+                    case 5:   // Carousel Card
+                        RenderCarousel(part);
+                        break;
+
+                    case 12:  // List Card
+                        doNextQueue();
+                        break;
+
+                    case 17: // Url
+                        doNextQueue();
+                        break;
+
+                    case 19: // User text
+                        doNextQueue();
+                        break;
+
+                    case 25: // Attesa
+                        setChatDelay(part);                    
+                        break;
+
+                    default:
+                        console.log("Unknow tag type:" + part.Type);
+                        break;
+                }
+            }
+
+            function setChatDelay(part) {
+                setChatLoader('think');
+
+                setTimeout(function() {
+                    doNextQueue();
+                }, part.TypeDelay);
+            }
+
+            function RenderText(part) {
+                if (isNullOrEmpty(part.Text)) {
+                    return;
+                }
+
+                createTypeitChatInstance()
+                    .options({
+                        speed: (part.Text.length > textLenghtThresholdForNoTyping ? 0 : typingSpeed)
+                    })
+                    .empty()
+                    .type(part.Text)
+                    .break()
+                    .pause(delayAfterEachTypedText);
+            }
+
+            function RenderButton(part) {
+                if (previousRenderedPart.Type != 1) {
+                    buttonsContainer = document.createElement('div');
+                    buttonsContainer.setAttribute('class', 'xn-chat-buttons-container');
+                    $('.xn-chat-elements-container')[0].appendChild(buttonsContainer);
+                }
+
+                var button = document.createElement('div');
+
+                switch (part.SubType) {
+                    case "element_share":
+                        break;
+                    case "phone_number":
+                        button.innerHTML = '<button class="xn-chat-button" onclick="window.open(\'tel:" + part.Command + "\', \'_blank\')\"><span>' + part.Text + '</span></button>';
+                        break;
+                    case "web_url":
+                        button.innerHTML = '<button class="xn-chat-button" onclick="window.open(\'' + part.Command + '\', \'_blank\')\"><span>' + part.Text + '</span></button>';
+                        break;
+                    default:
+                        button.innerHTML = '<button class="xn-chat-button" onclick="xenioolandingchat.setChatLoader(\'think\'); Command(\'' + DropSinglePoint(part.Text) + '\', \'' + DropSinglePoint(part.Command) + '\')"><span>' + part.Text + '</span></button>';
+                        break;
+                }
+
+                buttonsContainer.appendChild(button.firstChild);
+            }
+
+            function RenderVideo(part) {
+                var video = document.createElement('div');
+
+                video.innerHTML = '<div class="xn-video"><video class="xn-video-control" controls><source src="' + part.Text + '"></video></div>';
+                    
+                $('.xn-chat-elements-container')[0].appendChild(video.firstChild);
+            }
+
+            function RenderImage(part) {
+                var image = document.createElement('div');
+
+                var content = "<img class='x-image-element' src='" + part.Text + "'>";
+
+                if (part.Command)
+                    content = "<a href='" + part.Command + "' target='_blank'>" + content + "</a>";
+                
+                image.innerHTML = '<div class="xn-image">' + content + '</div>';
+                    
+                $('.xn-chat-elements-container')[0].appendChild(image.firstChild);
+            }
+
+            function RenderButtonCard(part) {
+                createTypeitChatInstance()
+                    .options({
+                        speed: (part.Text.length > textLenghtThresholdForNoTyping ? 0 : typingSpeed)
+                    })
+                    .empty()
+                    .type(part.Text)
+                    .break()
+                    .pause(delayAfterEachTypedText);
+
+                putInQueue(function () {
+                    for (var i = 0; i < part.Parts.length; i++) {
+                        RenderButton(part.Parts[i]);                            
+                        previousRenderedPart = part.Parts[i];  
+                    }
+                    doNextQueue();
+                });
+            }
+
+            function RenderCarousel(part) {
+                //Write("<div class='x-message-bubble'>" + getAvatarInline(index) + "<div class='x-message-bubble-content'>" + RenderCarousel(part) + "</div></div></div>");
 
 
-        }
+            }
 
-        function RenderCarouselInternal(part) {
-            var html = "<div class='x-carousel-container-whole'><div class='x-card-carousel-container fix-sizing' id='carousel_" + itemid + "'>";
+            function RenderCarouselInternal(part) {
+                var html = "<div class='x-carousel-container-whole'><div class='x-card-carousel-container fix-sizing' id='carousel_" + itemid + "'>";
 
-            for (var i = 0; i < part.Parts.length; i++)
-                html += RenderCard(part.Parts[i], true);
+                for (var i = 0; i < part.Parts.length; i++)
+                    html += RenderCard(part.Parts[i], true);
 
-            html += "</div>";
+                html += "</div>";
 
-            if (part.Parts.length > 1)
-                html += "<div onclick='scrollDiv(-4, " + itemid + ")' class='x-card-carousel-container-left-arrow'></div>";
+                if (part.Parts.length > 1)
+                    html += "<div onclick='scrollDiv(-4, " + itemid + ")' class='x-card-carousel-container-left-arrow'></div>";
 
-            if (part.Parts.length > 1)
-                html += "<div onclick='scrollDiv(4, " + itemid + ")' class='x-card-carousel-container-right-arrow'></div>";
+                if (part.Parts.length > 1)
+                    html += "<div onclick='scrollDiv(4, " + itemid + ")' class='x-card-carousel-container-right-arrow'></div>";
 
-            html += "</div>";
+                html += "</div>";
 
-            itemid++;
+                itemid++;
 
-            return html;
-        }
+                return html;
+            }
 
-        function DropSinglePoint(text) {
-            if (!text || text == null)
-                return "";
+            function DropSinglePoint(text) {
+                if (!text || text == null)
+                    return "";
 
-            text = text.replace(/'/g, "\\'");
-            return text;
-        }
+                text = text.replace(/'/g, "\\'");
+                return text;
+            }
+        
+            return {
+                intro: speakIntro,
+                start: start,
+                setChatLoader: setChatLoader
+            }
+        }());
 
-    </script>	
+        setTimeout(function () {
+            xenioolandingchat.intro('Hi! How can I help you today?');
+        }, 5800);
+		
+    </script>
 </body>
 </html>
