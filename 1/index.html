@@ -24,13 +24,13 @@
                     </div>
                     <div class="xn-chat-input-wrapper">
                         <div class="xn-chat-input-container">
-                            <input id="user_text" class="xn-chat-input" type="text" onkeyup="if (event.keyCode == 13) { Say(); }" />
+                            <input id="user_text" class="xn-chat-input" type="text" onkeyup="if (event.keyCode == 13) { xenioowebchat.Say(); }" />
                         </div>                   
-                        <div class="xn-chat-input-footer">
+                        <div class="xn-chat-input-footer" style="justify-content: center;">
                             <a id="xn-logo-link1" href="https://www.xenioo.com"><div class="xn-chat-logo"></div></a>
                             <div class="xn-chat-footer-buttons">
                                 <a class="xn-chat-signup-button" href="https://app.xenioo.com/auth/signup">SIGN UP!</a>
-                                <button id="send_button" class="xn-chat-submit-button" onclick="Say();"><span>SUBMIT</span></button>
+                                <button id="send_button" class="xn-chat-submit-button" onclick="xenioowebchat.Say();"><span>SUBMIT</span></button>
                             </div>    
                             <a id="xn-logo-link2" href="https://www.xenioo.com"><div class="xn-chat-logo"></div></a>                        
                         </div>         
@@ -51,22 +51,32 @@
                 <div class="xn-intro-logo-wrapper">
                     <div class="xn-intro-logo"></div>
                 </div>
-                <button id="xn-intro-view-cta" class="xn-action-button" onclick="start();"><span>Get Started</span></button>
+                <button id="xn-intro-view-cta" class="xn-action-button" onclick="xenioolandingchat.start();"><span>Get Started</span></button>
             </div>
         </div>
     </div>
-    <script src="https://app.xenioo.com/webchatsrc/xeniooweb.js"></script>
-	<script>
+    <script src="https://app.xenioo.com/webchatsrc/xenioowebchat.js"></script>
+    <script>
         var xenioolandingchat = (function () {
         
-            var botid = 'df16e5cd-7766-42ea-b071-286ca8844c84';
-            var loader = 'reveal';
+            var botid = '';
             var queue = [];            
             var currentRenderedPart = null;
             var previousRenderedPart = null;
             var delayAfterEachTypedText = 1500; //millisec
             var typingSpeed = 60;
-            var textLenghtThresholdForNoTyping = 100;
+            var typingSpeedForLongText = 0;
+            var longTextSpeedThreshold = 100;
+            var buttonRoundRadius = 2;
+
+            function config(data) {
+                botid = data.BotId;
+                delayAfterEachTypedText = data.DelayAfterEachTypedText;
+                typingSpeed = data.TypingSpeed;
+                typingSpeedForLongText = data.TypingSpeedForLongText;
+                longTextSpeedThreshold = data.LongTextSpeedThreshold;
+                buttonRoundRadius = data.ButtonRoundRadius;
+            }
 
             var createTypeitIntroInstance = function() { return new TypeIt('#xn-intro-text', {
                     speed: typingSpeed,
@@ -78,19 +88,32 @@
                     }
                 });
             };
-            
-            var createTypeitChatInstance = function() { return new TypeIt('#xn-chat-reply', {
+
+            var createTypeitChatInstance = function() {
+                $('#xn-chat-reply').empty();
+
+                return new TypeIt('#xn-chat-reply', {
                     speed: typingSpeed,
                     cursor: false,
                     breakLines: false,
                     startDelete: false,
+                    autoStart: false,
                     beforeString: function(step, queue, instance) {
                         setChatLoader('speak');
                     },
-                    afterComplete: function(instance) {                        
+                    afterString: function(step, queue, instance) {
+                        setChatLoader('think');
+                    },
+                    afterComplete: function(instance) {
                         doNextQueue();
                     }
                 });
+            };
+
+            var emptyTypeitChat = function () {                
+                $('.xn-chat-elements-container').empty();
+                $('#xn-chat-reply').empty();
+                doNextQueue();
             };
 
             function putInQueue(fn) {
@@ -111,40 +134,47 @@
 
                 fn();            
             }
-
-            function start() {
+        
+            function startChat() {
                 $('.xn-intro-view').css('display', 'none');
                 $('.xn-chat-view').css('display', 'block');
 
-                loader = '';
                 setChatLoader('think');
 
-                Xenioo(botid, {
+                xenioowebchat.Start(botid, {
                     replyFn: reply,
                     createbutton:false,
                     createarea: false,
                     chattextid: "user_text",
                     sendbuttonid: "send_button"
-                });      
+                });
             }
 
-            function speakIntro(what) {
-                setIntroLoader('speak');
+            function startIntro(what) {
+                $('#xn-intro-view-cta').css("border-radius", buttonRoundRadius + "px");
 
-                createTypeitIntroInstance().empty().type(what);
+                setTimeout(function () {
+                    setIntroLoader('speak');
+                    createTypeitIntroInstance().empty().type(what);
+                }, 5800);                
             }
 
             function setIntroLoader(what) {
-                $('.xn-intro-view #xn-loader').removeClass('xn-loader-' + loader);
+                $('.xn-intro-view #xn-loader').removeClass('xn-loader-reveal');
+                $('.xn-intro-view #xn-loader').removeClass('xn-loader-speak');
+                $('.xn-intro-view #xn-loader').removeClass('xn-loader-think');
+                $('.xn-intro-view #xn-loader').removeClass('xn-loader-idle');
+
                 $('.xn-intro-view #xn-loader').addClass('xn-loader-' + what);
-                loader = what;
             }
 
             function setChatLoader(what) {
-                if (loader)
-                    $('.xn-chat-view #xn-loader').removeClass('xn-loader-' + loader);
+                $('.xn-chat-view #xn-loader').removeClass('xn-loader-reveal');
+                $('.xn-chat-view #xn-loader').removeClass('xn-loader-speak');
+                $('.xn-chat-view #xn-loader').removeClass('xn-loader-think');
+                $('.xn-chat-view #xn-loader').removeClass('xn-loader-idle');
+
                 $('.xn-chat-view #xn-loader').addClass('xn-loader-' + what);
-                loader = what;
             }
 
             function reply(reply, start) {
@@ -152,17 +182,24 @@
                 if (parts.length == 0)
                     return;
 
-                typeitInstanceChat = createTypeitChatInstance();
+                enableUserInput(reply.EnableUserChat);
 
-                $('.xn-chat-elements-container').empty();
-                    
-                for (var i = 0; i < parts.length; i++) {
-                    var part = parts[i];
-                    var index = i;
-                    putInQueue(renderBotReply.bind(this, part, index));
-                }
+                putInQueue(emptyTypeitChat.bind(this));
+
+                putRenderPartsInQueue(parts);
 
                 doNextQueue();
+            }
+
+            function putRenderPartsInQueue(parts) {
+                if (!parts || parts.length == 0)
+                    return;
+
+                for (var index = 0; index < parts.length; index++) {
+                    var part = parts[index];
+                    putInQueue(renderBotReply.bind(this, part, index));                    
+                    putRenderPartsInQueue(part.Parts);
+                }
             }
 
             function renderBotReply(part, index) {
@@ -178,18 +215,15 @@
                         break;
 
                     case 1: // Button
-                        RenderButton(part);                                
-                        doNextQueue();
+                        RenderButton(part);
                         break;
 
                     case 3: // Image
                         RenderImage(part);
-                        doNextQueue();
                         break;
 
                     case 9: // Video 
                         RenderVideo(part);
-                        doNextQueue();
                         break;
 
                     case 10: // Audio
@@ -221,7 +255,7 @@
                         break;
 
                     case 25: // Attesa
-                        setChatDelay(part);                    
+                        RenderChatDelay(part);                    
                         break;
 
                     default:
@@ -229,28 +263,27 @@
                         break;
                 }
             }
-
-            function setChatDelay(part) {
-                setChatLoader('think');
-
-                setTimeout(function() {
-                    doNextQueue();
-                }, part.TypeDelay);
+            
+            function enableUserInput(enabled) {
+                $('#user_text').prop( "disabled", !enabled );
             }
 
             function RenderText(part) {
-                if (isNullOrEmpty(part.Text)) {
+                var text = xenioowebchat.Utils.FixText(part.Text);
+
+                if (xenioowebchat.Utils.IsNullOrEmpty(text)) {
+                    doNextQueue();
                     return;
                 }
 
                 createTypeitChatInstance()
                     .options({
-                        speed: (part.Text.length > textLenghtThresholdForNoTyping ? 0 : typingSpeed)
+                        speed: (text.length > longTextSpeedThreshold ? typingSpeedForLongText : typingSpeed)
                     })
                     .empty()
-                    .type(part.Text)
+                    .type(text)
                     .break()
-                    .pause(delayAfterEachTypedText);
+                    .pause(delayAfterEachTypedText);                    
             }
 
             function RenderButton(part) {
@@ -266,17 +299,19 @@
                     case "element_share":
                         break;
                     case "phone_number":
-                        button.innerHTML = '<button class="xn-chat-button" onclick="window.open(\'tel:" + part.Command + "\', \'_blank\')\"><span>' + part.Text + '</span></button>';
+                        button.innerHTML = '<button style="border-radius: ' + buttonRoundRadius + 'px;" class="xn-chat-button" onclick="window.open(\'tel:" + part.Command + "\', \'_blank\')\"><span>' + part.Text + '</span></button>';
                         break;
                     case "web_url":
-                        button.innerHTML = '<button class="xn-chat-button" onclick="window.open(\'' + part.Command + '\', \'_blank\')\"><span>' + part.Text + '</span></button>';
+                        button.innerHTML = '<button style="border-radius: ' + buttonRoundRadius + 'px;" class="xn-chat-button" onclick="window.open(\'' + part.Command + '\', \'_blank\')\"><span>' + part.Text + '</span></button>';
                         break;
                     default:
-                        button.innerHTML = '<button class="xn-chat-button" onclick="xenioolandingchat.setChatLoader(\'think\'); Command(\'' + DropSinglePoint(part.Text) + '\', \'' + DropSinglePoint(part.Command) + '\')"><span>' + part.Text + '</span></button>';
+                        button.innerHTML = '<button style="border-radius: ' + buttonRoundRadius + 'px;" class="xn-chat-button" onclick="xenioolandingchat.setChatLoader(\'think\'); xenioowebchat.Command(\'' + xenioowebchat.Utils.DropSinglePoint(part.Text) + '\', \'' + xenioowebchat.Utils.DropSinglePoint(part.Command) + '\')"><span>' + part.Text + '</span></button>';
                         break;
                 }
 
                 buttonsContainer.appendChild(button.firstChild);
+
+                doNextQueue();
             }
 
             function RenderVideo(part) {
@@ -285,6 +320,8 @@
                 video.innerHTML = '<div class="xn-video"><video class="xn-video-control" controls><source src="' + part.Text + '"></video></div>';
                     
                 $('.xn-chat-elements-container')[0].appendChild(video.firstChild);
+
+                doNextQueue();
             }
 
             function RenderImage(part) {
@@ -298,73 +335,53 @@
                 image.innerHTML = '<div class="xn-image">' + content + '</div>';
                     
                 $('.xn-chat-elements-container')[0].appendChild(image.firstChild);
+
+                doNextQueue();
             }
 
-            function RenderButtonCard(part) {
+            function RenderButtonCard(part) {  
+                var text = xenioowebchat.Utils.FixText(part.Text);
+
                 createTypeitChatInstance()
                     .options({
-                        speed: (part.Text.length > textLenghtThresholdForNoTyping ? 0 : typingSpeed)
+                        speed: (text.length > longTextSpeedThreshold ? typingSpeedForLongText : typingSpeed)
                     })
                     .empty()
-                    .type(part.Text)
+                    .type(text)
                     .break()
                     .pause(delayAfterEachTypedText);
-
-                putInQueue(function () {
-                    for (var i = 0; i < part.Parts.length; i++) {
-                        RenderButton(part.Parts[i]);                            
-                        previousRenderedPart = part.Parts[i];  
-                    }
-                    doNextQueue();
-                });
             }
 
             function RenderCarousel(part) {
-                //Write("<div class='x-message-bubble'>" + getAvatarInline(index) + "<div class='x-message-bubble-content'>" + RenderCarousel(part) + "</div></div></div>");
-
-
             }
 
-            function RenderCarouselInternal(part) {
-                var html = "<div class='x-carousel-container-whole'><div class='x-card-carousel-container fix-sizing' id='carousel_" + itemid + "'>";
+            function RenderChatDelay(part) {
+                setChatLoader('think');
 
-                for (var i = 0; i < part.Parts.length; i++)
-                    html += RenderCard(part.Parts[i], true);
-
-                html += "</div>";
-
-                if (part.Parts.length > 1)
-                    html += "<div onclick='scrollDiv(-4, " + itemid + ")' class='x-card-carousel-container-left-arrow'></div>";
-
-                if (part.Parts.length > 1)
-                    html += "<div onclick='scrollDiv(4, " + itemid + ")' class='x-card-carousel-container-right-arrow'></div>";
-
-                html += "</div>";
-
-                itemid++;
-
-                return html;
-            }
-
-            function DropSinglePoint(text) {
-                if (!text || text == null)
-                    return "";
-
-                text = text.replace(/'/g, "\\'");
-                return text;
+                setTimeout(function() {
+                    doNextQueue();
+                }, part.TypeDelay);
             }
         
             return {
-                intro: speakIntro,
-                start: start,
+                config: config,
+                intro: startIntro,
+                start: startChat,
                 setChatLoader: setChatLoader
             }
-        }());
+        }());        
+    </script>
+    <script>
+        xenioolandingchat.config({
+            BotId: 'df16e5cd-7766-42ea-b071-286ca8844c84',
+            DelayAfterEachTypedText: 1500, // millisec
+            TypingSpeed: 10,
+            TypingSpeedForLongText: 10,
+            LongTextSpeedThreshold: 100, // lenght of text in characters
+            ButtonRoundRadius: 2
+        });
 
-        setTimeout(function () {
-            xenioolandingchat.intro('Hi! How can I help you today?');
-        }, 5800);
-		
+        xenioolandingchat.intro('Hi! How can I help you today?');
     </script>
 </body>
 </html>
