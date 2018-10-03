@@ -266,6 +266,8 @@
             
             function enableUserInput(enabled) {
                 $('#user_text').prop( "disabled", !enabled );
+                if (enabled)
+                    $('#user_text').focus();
             }
 
             function RenderText(part) {
